@@ -7,21 +7,6 @@
 #include "himbo.h"
 #include "bitmaps.h"
 
-uint8_t showIdle() {
-    return 0;
-}
-
-uint8_t showFeed() {
-    return 0;
-}
-
-uint8_t showTrain() {
-    return 0;
-}
-
-uint8_t showChill() {
-    return 0;
-}
 
 Himbo::Himbo() {
     gains = 10;
@@ -29,4 +14,23 @@ Himbo::Himbo() {
     happiness = 10;
 
     idleBitmap = epd_bitmap_himbo_idle;
+}
+
+uint8_t Himbo::eat() {
+    hunger += 2;
+    happiness += 1;
+    return hunger;
+}
+
+uint8_t Himbo::train() {
+    gains += 2;
+    hunger -= 1;
+    happiness -= 1;
+    return gains;
+}
+
+uint8_t Himbo::chill() {
+    happiness += 2;
+    hunger -= 1;
+    return happiness;
 }

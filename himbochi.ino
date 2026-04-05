@@ -39,7 +39,6 @@ void idle() {
     // Button 1
     display.setCursor(BUTTON_1_X, BUTTON_1_Y);
     display.println(">Train");
-    pinMode(buttonPin1, INPUT);
     buttonState1 = digitalRead(buttonPin1);
     if (buttonState1 == HIGH) {
       isIdle = false;
@@ -49,7 +48,6 @@ void idle() {
       // Button 2
     display.setCursor(BUTTON_2_X, BUTTON_2_Y);
     display.println(">Eat");
-    pinMode(buttonPin2, INPUT);
     buttonState2 = digitalRead(buttonPin2);
     if (buttonState2 == HIGH) {
       isIdle = false;
@@ -58,7 +56,6 @@ void idle() {
     // Button 3
     display.setCursor(BUTTON_3_X, BUTTON_3_Y);
     display.println(">Chill");
-    pinMode(buttonPin3, INPUT);
     buttonState3 = digitalRead(buttonPin3);
     if (buttonState3 == HIGH) {
       isIdle = false;
@@ -70,7 +67,9 @@ void train() {
   display.clearDisplay();
   display.setCursor(ANIMATION_TITLE_X, ANIMATION_TITLE_Y);
   display.println("Lifting Weights...");
-  //himbo.train();
+  display.display();
+
+  himbo.train();
   delay(2000);
   isTraining = false;
   isIdle = true;
@@ -80,7 +79,9 @@ void eat() {
   display.clearDisplay();
   display.setCursor(ANIMATION_TITLE_X, ANIMATION_TITLE_Y);
   display.println("Getting some protein...");
-  //himbo.feed();
+  display.display();
+
+  himbo.eat();
   delay(2000);
   isEating = false;
   isIdle = true;
@@ -90,7 +91,9 @@ void chill() {
   display.clearDisplay();
   display.setCursor(ANIMATION_TITLE_X, ANIMATION_TITLE_Y);
   display.println("Chilling...");
-  //himbo.chill();
+  display.display();
+  
+  himbo.chill();
   delay(2000);
   isChilling = false;
   isIdle = true;
@@ -98,6 +101,11 @@ void chill() {
 
 void setup() {
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
+
+  // setup buttons
+  pinMode(buttonPin1, INPUT);
+  pinMode(buttonPin2, INPUT);
+  pinMode(buttonPin3, INPUT);
 
   // This orientation is important for how my breadboard is set up. Subject to change depending on how you set up your board. 
   display.setRotation(2);
@@ -107,20 +115,17 @@ void setup() {
 
 void loop() {
   
-  display.setTextSize(.5);
+  display.setTextSize(1);
   display.setTextColor(SSD1306_WHITE);
   display.setCursor(0, 0);
 
-  while (isIdle) {
+  if (isIdle) {
     idle();
-  }
-  while (isTraining) {
+  } else if (isTraining) {
     train();
-  }
-  while (isEating) {
+  } else if (isEating) {
     eat();
-  }
-  while (isChilling) {
+  } else if (isChilling) {
     chill();
   }
 
