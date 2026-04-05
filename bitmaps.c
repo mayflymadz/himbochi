@@ -1,3 +1,5 @@
+// These are the bitmaps for sprites and images. It is very important to keep these in program memory as they take up a lot of space.
+
 #include <stdint.h>
 #include <avr/pgmspace.h>
 

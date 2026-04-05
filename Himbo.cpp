@@ -4,14 +4,15 @@
 #include <stdlib.h>
 
 
-#include "himbo.h"
-#include "bitmaps.h"
-
+#include "Himbo.h"
+#include "bitmaps.c"
+#include "dialogues.c"
 
 Himbo::Himbo() {
-    gains = 10;
-    hunger = 10;
-    happiness = 10;
+    gains = 1;
+    hunger = 1;
+    happiness = 1;
+    mood = CONTENT;
 
     idleBitmap = epd_bitmap_himbo_idle;
 }

@@ -1,10 +1,16 @@
+// Himbochi - A Tamagotchi-inspired virtual pet for people who want to take care of a cute little himbo.
+// Author: Madison (mayflymadz)
+// April 2026
+
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
-#include "bitmaps.h"
-#include "himbo.h"
+#include "bitmaps.c"
+#include "Himbo.h"
 
-
+// These will point where the buttons, character, and bars go. The character is in the middle of the scree, the buttons are on the bootom, and the bars are at the top
+// I will probably simplify this later, but this is helping me visualize where everything is going for now.
+// TODO: Calculate locations based on screen size and character size instead of hardcoding them. This will make it easier to change the screen size later if I want to.
 const uint8_t CHARACTER_ANCHOR_X = 48;
 const uint8_t CHARACTER_ANCHOR_Y = 16;
 const uint8_t BUTTON_1_X = 0;
@@ -15,6 +21,12 @@ const uint8_t BUTTON_3_X = 90;
 const uint8_t BUTTON_3_Y = 52;
 const uint8_t ANIMATION_TITLE_X = 0;
 const uint8_t ANIMATION_TITLE_Y = 52;
+const uint8_t GAINS_BAR_X = 0;
+const uint8_t GAINS_BAR_Y = 0;
+const uint8_t HUNGER_BAR_X = 50;
+const uint8_t HUNGER_BAR_Y = 0;
+const uint8_t HAPPINESS_BAR_X = 100;
+const uint8_t HAPPINESS_BAR_Y = 0;
 
 // Button values
 const int buttonPin1 = 2;
@@ -32,8 +44,22 @@ bool isTraining = false;
 bool isEating = false;
 bool isChilling = false;
 
+// Display stat bar function
+void displayStatBar(uint8_t x, uint8_t y, uint8_t amount) {
+    display.drawRect(x, y, 20, 10, SSD1306_WHITE);
+    display.fillRect(x + 1, y + 1, amount, 8, SSD1306_WHITE);
+}
+
 void idle() {
+    // This is the 'homescreen' of the himbo. It shows his current stats and lets you choose an action.
     display.clearDisplay();
+
+    // Stat bars
+    displayStatBar(GAINS_BAR_X, GAINS_BAR_Y, himbo.getGains());
+    displayStatBar(HUNGER_BAR_X, HUNGER_BAR_Y, himbo.getHunger());
+    displayStatBar(HAPPINESS_BAR_X, HAPPINESS_BAR_Y, himbo.getHappiness());
+
+    // Character art/sprite
     display.drawBitmap(CHARACTER_ANCHOR_X, CHARACTER_ANCHOR_Y, himbo.getIdleBitmap(), HIMBO_IDLE_FRAME_WIDTH, HIMBO_IDLE_FRAME_HEIGHT, SSD1306_WHITE);
 
     // Button 1
@@ -64,6 +90,8 @@ void idle() {
 }
 
 void train() {
+  // This will play the training animation and update the himbo's stats accordingly. It will then return to the idle screen.
+  // TODO: Make sprite for training animation
   display.clearDisplay();
   display.setCursor(ANIMATION_TITLE_X, ANIMATION_TITLE_Y);
   display.println("Lifting Weights...");
@@ -76,6 +104,8 @@ void train() {
 }
 
 void eat() {
+  // This will play the eating animation and update the himbo's stats accordingly. It will then return to the idle screen.
+  // TODO: Make sprite for eating animation
   display.clearDisplay();
   display.setCursor(ANIMATION_TITLE_X, ANIMATION_TITLE_Y);
   display.println("Getting some protein...");
@@ -88,11 +118,13 @@ void eat() {
 }
 
 void chill() {
+  // This will play the chilling animation and update the himbo's stats accordingly. It will then return to the idle screen.
+  // TODO: Make sprite for chilling animation
   display.clearDisplay();
   display.setCursor(ANIMATION_TITLE_X, ANIMATION_TITLE_Y);
   display.println("Chilling...");
   display.display();
-  
+
   himbo.chill();
   delay(2000);
   isChilling = false;
@@ -100,6 +132,7 @@ void chill() {
 }
 
 void setup() {
+  // Set up display
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
 
   // setup buttons
@@ -119,6 +152,7 @@ void loop() {
   display.setTextColor(SSD1306_WHITE);
   display.setCursor(0, 0);
 
+  // Check what state the screen should be in 
   if (isIdle) {
     idle();
   } else if (isTraining) {
@@ -128,7 +162,6 @@ void loop() {
   } else if (isChilling) {
     chill();
   }
-
 
   display.display();
 
