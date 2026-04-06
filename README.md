@@ -3,7 +3,7 @@ A work-in progress tamagotchi-clone.
 It is a virtual 'pet' game where you take care of a cute little himbo.
 Is it weird to call a himbo a pet? Maybe. Is it unethical to turn men into pets? Probably. I love that one quote from Jurassic Park -- "Your scientists were so preoccupied with whether or not they could that they didn't stop to think if they should". I live by that. Every day. 
 
-TW: A man who does not know how to 
+TW: A man who does not know how to care for his basic needs. 
 
 All sprites and logic, written by me, mayflymadz.
 
