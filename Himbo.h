@@ -24,6 +24,7 @@ class Himbo {
         uint8_t gains;
         uint8_t hunger;
         uint8_t happiness;
+        const uint8_t statMax = 12;
         const unsigned char* idleBitmap;
         const unsigned char* eatBitmap;
         const unsigned char* trainBitmap;
@@ -56,6 +57,7 @@ class Himbo {
         const unsigned char* getTrainBitmap() { return trainBitmap; }
         const unsigned char* getChillBitmap() { return chillBitmap; }
 
+        const uint8_t Himbo::getStatMax() { return statMax; }
 };
 
 
