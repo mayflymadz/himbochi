@@ -27,6 +27,17 @@ const uint8_t HUNGER_BAR_X = 50;
 const uint8_t HUNGER_BAR_Y = 0;
 const uint8_t HAPPINESS_BAR_X = 100;
 const uint8_t HAPPINESS_BAR_Y = 0;
+const uint8_t DIALOGUE_X = 60;
+const uint8_t DIALOGUE_Y = 16;
+
+// Variables we can use while we are in an action to track how much time has passed
+unsigned long actionStartTime = 0;
+const unsigned long ACTION_DURATION = 2000; // Duration of the action animations in milliseconds
+bool actionStarted = false;
+
+// Variables to show dialogue
+const unsigned long DIALOGUE_DURATION;
+bool showingDialogue = false;
 
 // Button values
 const int buttonPin1 = 2;
@@ -44,10 +55,22 @@ bool isTraining = false;
 bool isEating = false;
 bool isChilling = false;
 
+// Most important value: the timer
+unsigned long lastDecayTime = 0;
+unsigned long lastDialogueTime = 0;
+const unsigned long decayRate = 60000; // Decay every 60 seconds (1 minute), we can adjust this throughout development as needed.
+const unsigned long dialogueRate = 1000; // Dialogue every 10 seconds, also subject to change.
+
 // Display stat bar function
 void displayStatBar(uint8_t x, uint8_t y, uint8_t amount) {
     display.drawRect(x, y, 20, 10, SSD1306_WHITE);
     display.fillRect(x + 1, y + 1, amount, 8, SSD1306_WHITE);
+}
+
+void speak(const char* dialogue) {
+    // This will display the himbo's dialogue at the bottom of the screen. It will be called periodically based on the himbo's mood.
+    display.setCursor(DIALOGUE_X, DIALOGUE_Y);
+    display.println(dialogue);
 }
 
 void idle() {
@@ -89,46 +112,85 @@ void idle() {
     }
 }
 
+void actionAnimation(Action actionType, char* message) {
+  // This will play the animation for the action and update stats, we don't need eat, train and chill to be seperate methods
+  if (!actionStarted) {
+    actionStartTime = millis();
+    actionStarted = true;
+    himbo.doActivity(actionType);
+  }
+
+  display.clearDisplay();
+  display.setCursor(ANIMATION_TITLE_X, ANIMATION_TITLE_Y);
+  display.println(message);
+  display.display();
+
+  if (millis() - actionStartTime > ACTION_DURATION) {
+    isTraining = false;
+    isIdle = true;
+    actionStarted = false; // reset this flag so the other actions can use it!
+  }
+}
+
+// TODO: I feel like these three action items repeat themselves, perhaps we can condense these into one method, that takes in an enum of action type or something like that
 void train() {
   // This will play the training animation and update the himbo's stats accordingly. It will then return to the idle screen.
   // TODO: Make sprite for training animation
+  if (!actionStarted) {
+    actionStartTime = millis();
+    actionStarted = true;
+    himbo.train();
+  }
   display.clearDisplay();
   display.setCursor(ANIMATION_TITLE_X, ANIMATION_TITLE_Y);
   display.println("Lifting Weights...");
   display.display();
 
-  himbo.train();
-  delay(2000);
-  isTraining = false;
-  isIdle = true;
+  if (millis() - actionStartTime > ACTION_DURATION) {
+    isTraining = false;
+    isIdle = true;
+    actionStarted = false; // reset this flag so the other actions can use it!
+  }
 }
 
 void eat() {
   // This will play the eating animation and update the himbo's stats accordingly. It will then return to the idle screen.
   // TODO: Make sprite for eating animation
+  if (!actionStarted) {
+    actionStartTime = millis();
+    actionStarted = true;
+    himbo.eat();
+  }
   display.clearDisplay();
   display.setCursor(ANIMATION_TITLE_X, ANIMATION_TITLE_Y);
   display.println("Getting some protein...");
   display.display();
 
-  himbo.eat();
-  delay(2000);
-  isEating = false;
-  isIdle = true;
+  if (millis() - actionStartTime > ACTION_DURATION) {
+    isTraining = false;
+    isIdle = true;
+    actionStarted = false; // reset this flag so the other actions can use it!
+  }
 }
 
 void chill() {
   // This will play the chilling animation and update the himbo's stats accordingly. It will then return to the idle screen.
   // TODO: Make sprite for chilling animation
+  if (!actionStarted) {
+    actionStartTime = millis();
+    actionStarted = true;
+    himbo.eat();
+  }
   display.clearDisplay();
   display.setCursor(ANIMATION_TITLE_X, ANIMATION_TITLE_Y);
   display.println("Chilling...");
   display.display();
 
-  himbo.chill();
-  delay(2000);
-  isChilling = false;
-  isIdle = true;
+  if (millis() - actionStartTime > ACTION_DURATION) {
+    isTraining = false;
+    isIdle = true;
+    actionStarted = false; // reset this flag so the other actions can use it!
+  }
 }
 
 void setup() {
@@ -151,6 +213,21 @@ void loop() {
   display.setTextSize(1);
   display.setTextColor(SSD1306_WHITE);
   display.setCursor(0, 0);
+
+  // Check the current time for stat decay and dialogue
+
+  // Stat decay
+  unsigned long currentTime = millis();
+  if (currentTime - lastDecayTime >= decayRate) {
+    himbo.decay();
+    lastDecayTime = currentTime;
+  }
+
+  // Dialogue
+  if (currentTime - lastDialogueTime >= dialogueRate) {
+    speak(himbo.getDialogue());
+    lastDialogueTime = currentTime;
+  }
 
   // Check what state the screen should be in 
   if (isIdle) {

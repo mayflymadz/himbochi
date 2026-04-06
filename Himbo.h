@@ -12,6 +12,12 @@ enum Mood {
     SAD
 };
 
+enum Action {
+    EAT,
+    TRAIN,
+    CHILL
+};
+
 class Himbo {
     // Visible stats
     private:
@@ -33,20 +39,22 @@ class Himbo {
         uint8_t eat();
         uint8_t train();
         uint8_t chill();
+        uint8_t doActivity(Action actionType);
+        const char* getDialogue();
 
         // Passive stat decay, called based on decay rate
-        uint8_t decay();
+        void decay();
 
         // Retrieve data
-        uint8_t getGains() {return gains;};
-        uint8_t getHunger() {return hunger;};
-        uint8_t getHappiness() {return happiness;};
-        Mood getMood() {return mood;};
+        uint8_t getGains() { return gains; };
+        uint8_t getHunger() { return hunger; };
+        uint8_t getHappiness() { return happiness; };
+        Mood getMood() { return mood; };
 
-        const unsigned char* getIdleBitmap() {return idleBitmap;}
-        const unsigned char* getEatBitmap() {return eatBitmap;}
-        const unsigned char* getTrainBitmap() {return trainBitmap;}
-        const unsigned char* getChillBitmap() {return chillBitmap;}
+        const unsigned char* getIdleBitmap() { return idleBitmap; }
+        const unsigned char* getEatBitmap() { return eatBitmap; }
+        const unsigned char* getTrainBitmap() { return trainBitmap; }
+        const unsigned char* getChillBitmap() { return chillBitmap; }
 
 };
 
