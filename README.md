@@ -12,22 +12,24 @@ There's also still a lot of sprite work and expansion to do as well. I wrote all
 
 Anyway, enjoy himbochi :)
 
+![alt test][images/v1_image.jpg]
+
 ## Building and flashing with arduino cli
 I've never used Arduino IDE, but I'm sure it's even easier than the way I do it. 
 
-# Set Up Core
+### Set Up Core
 `arduino-cli core update-index`
 `arduino-cli core install arduino:avr`
 
-# Create Project
+### Create Project
 `arduino-cli sketch new my_project`
 `cd my_project`
 
-# Compile
+### Compile
 `arduino-cli compile --fqbn arduino:avr:uno`
 
-# Flash
+### Flash
 `arduino-cli upload -p /dev/tty* --fqbn arduino:avr:uno .`
 
-# Find Board Serial Port
+### Find Board Serial Port
 `arduino-cli board list`
