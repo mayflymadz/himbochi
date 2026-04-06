@@ -1,4 +1,4 @@
-// Himbochi - An virtual 'pet' game where you take care of a cute little himbo.
+// Himbochi - A virtual 'pet' game where you take care of a cute little himbo.
 // Is it weird to call a himbo a pet? Maybe. Is it unethical to turn men into pets? Probably.
 // 
 // Author: Madison (mayflymadz)
