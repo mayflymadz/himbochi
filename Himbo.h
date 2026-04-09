@@ -18,6 +18,15 @@ enum Action {
     CHILL
 };
 
+// This is for himbochi.ino to use, just wasn't sure where to put tit
+enum State {
+    IDLE,
+    CHILLING,
+    EATING,
+    TRAINING,
+    SPLASH
+};
+
 class Himbo {
     // Visible stats
     private:

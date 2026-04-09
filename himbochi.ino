@@ -41,22 +41,25 @@ bool isSpeaking = false;
 const char* currentLine;
 
 // Button values
-const int buttonPin1 = 2;
+const int buttonPin1 = 10;
 const int buttonPin2 = 4;
 const int buttonPin3 = 6;
+const int buzzerPin = 2;
 
 int buttonState1 = 0;
 int buttonState2 = 0;
 int buttonState3 = 0;
 
+// Buzzer values
+unsigned long toneStartTime = 0;
+const unsigned long TONE_DURATION = 100; // short click sound
+bool isPlayingTone = false;
+
 Adafruit_SSD1306 display(128, 64, &Wire);
 Himbo himbo = Himbo();
 
 // TODO: change these to an enum so we can't hit weird states where we are idle and chilling or something (except speaking, that's a special condtion on top of idle)
-bool isIdle = true;
-bool isTraining = false;
-bool isEating = false;
-bool isChilling = false;
+State state = IDLE;
 
 // Most important value: the timer
 unsigned long lastDecayTime = 0;
@@ -72,9 +75,27 @@ void displayStatBar(uint8_t x, uint8_t y, uint8_t amount) {
     display.fillRect(x + 1, y + 1, ((amount * 20) / himbo.getStatMax()), 8, SSD1306_WHITE);
 }
 
+// Make a little tone on the buzzer
+void playTone(uint16_t frequency) {
+  tone(buzzerPin, frequency);
+  toneStartTime = millis();
+  isPlayingTone = true;
+}
+
+// This function will be continually called to check for the tone
+void updateTone() {
+  if (isPlayingTone && (millis() - toneStartTime >= TONE_DURATION)) {
+    noTone(buzzerPin);
+    isPlayingTone = false;
+  }
+}
+
 void idle() {
     // This is the 'homescreen' of the himbo. It shows his current stats and lets you choose an action.
     display.clearDisplay();
+
+    // play tone if we get prompted to
+    updateTone();
 
     // Stat bars
     displayStatBar(GAINS_BAR_X, GAINS_BAR_Y, himbo.getGains());
@@ -89,8 +110,9 @@ void idle() {
     display.println(">Train");
     buttonState1 = digitalRead(buttonPin1);
     if (buttonState1 == HIGH) {
-      isIdle = false;
-      isTraining = true;
+      isPlayingTone = true;
+      playTone(300);
+      state = TRAINING;
     }
 
       // Button 2
@@ -98,21 +120,27 @@ void idle() {
     display.println(">Eat");
     buttonState2 = digitalRead(buttonPin2);
     if (buttonState2 == HIGH) {
-      isIdle = false;
-      isEating = true;
+      isPlayingTone = true;
+      playTone(300);
+      state = EATING;
     }
     // Button 3
     display.setCursor(BUTTON_3_X, BUTTON_3_Y);
     display.println(">Chill");
     buttonState3 = digitalRead(buttonPin3);
     if (buttonState3 == HIGH) {
-      isIdle = false;
-      isChilling = true;
+      isPlayingTone = true;
+      playTone(300); 
+      state = CHILLING;
     }
 }
 
 void actionAnimation(Action actionType, char* message) {
   // This will play the animation for the action and update stats, we don't need eat, train and chill to be seperate methods
+
+  // Since we leave idle immediately and enter this function, we need to update the tone now as well so it turns off when we want it to
+  updateTone();
+
   if (!actionStarted) {
     actionStartTime = millis();
     actionStarted = true;
@@ -128,18 +156,18 @@ void actionAnimation(Action actionType, char* message) {
     switch (actionType)
     {
     case CHILL:
-      isChilling = false;
+      state = CHILLING;
       break;
     case TRAIN:
-      isTraining = false;
+      state = TRAINING;
       break;
     case EAT:
-      isEating = false;
+      state = EATING;
       break;    
     default:
       break;
     }
-    isIdle = true;
+    state = IDLE;
     actionStarted = false; // reset this flag so the other actions can use it!
   }
 }
@@ -189,13 +217,13 @@ void loop() {
   }
 
   // Check what state the screen should be in 
-  if (isIdle) {
+  if (state == IDLE) {
     idle();
-  } else if (isTraining) {
+  } else if (state == TRAINING) {
     actionAnimation(Action::TRAIN, "Lifting Weights!");
-  } else if (isEating) {
+  } else if (state == EATING) {
     actionAnimation(Action::EAT, "Getting some protein!");
-  } else if (isChilling) {
+  } else if (state == CHILLING) {
     actionAnimation(Action::CHILL, "Chillin!");
   }
 
